@@ -6,7 +6,7 @@ const workspaceSchema = new mongoose.Schema(
         {
           role: {
             type: String,
-            enum: ["user", "assistant", "system"],
+            enum: ["user", "ai"],
             required: true,
           },
           content: {

@@ -23,6 +23,48 @@ router.post("/", async (req, res) => {
     res.status(500).json({ error: "Internal Server Error" });
   }
 });
+//Patch one message
+router.patch("/:id/message", async (req, res) => {
+  try {
+    const { role, content } = req.body;
+
+    if (!role || !content) {
+      return res.status(400).json({ error: "Missing role or content" });
+    }
+
+    const workspace = await Workspace.findById(req.params.id);
+
+    if (!workspace) {
+      return res.status(404).json({ error: "Workspace not found" });
+    }
+
+    const newMessage = {
+      role,
+      content,
+    };
+
+    // Add the new message to the messages array
+    workspace.messages.push(newMessage);
+
+    const updatedWorkspace = await workspace.save();
+
+    res.json({
+      success: true,
+      message: "Message added successfully",
+      workspace: updatedWorkspace,
+      addedMessage: newMessage,
+    });
+  } catch (error) {
+    console.error("Error adding message:", error.message);
+
+    if (error.name === "CastError") {
+      return res.status(400).json({ error: "Invalid workspace ID format" });
+    }
+
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
 // Get workspace by ID
 router.get("/:id", async (req, res) => {
   try {
