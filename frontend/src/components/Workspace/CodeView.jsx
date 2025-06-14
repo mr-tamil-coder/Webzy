@@ -16,26 +16,100 @@ import { MessageContext } from "../../context/MsgContext";
 import axios from "axios";
 import { API } from "../../utils/Api";
 
-const CodeView = () => {
+const CodeView = ({ workspaceId }) => {
   const [activeTab, setActiveTab] = useState("code");
   const [files, setFiles] = useState(DEFAULT_FILE);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   const { messages, setMessages } = useContext(MessageContext);
 
+  // Load workspace data on component mount
   useEffect(() => {
-    if (messages?.length > 0) {
-      const role = messages[messages.length - 1]?.role;
-      if (role === "user") {
+    if (workspaceId) {
+      loadWorkspaceData();
+    } else {
+      setIsLoading(false);
+    }
+  }, [workspaceId]);
+
+  // Handle new messages - Add dependency check and prevent infinite loops
+  useEffect(() => {
+    if (messages?.length > 0 && !isLoading) {
+      const lastMessage = messages[messages.length - 1];
+      if (lastMessage?.role === "user" && !lastMessage.processed) {
         genAiCode();
+        // Mark message as processed to prevent re-triggering
+        setMessages(prev => 
+          prev.map((msg, index) => 
+            index === prev.length - 1 ? { ...msg, processed: true } : msg
+          )
+        );
       }
     }
-  }, [messages]);
+  }, [messages, isLoading]); // Remove setMessages from dependencies
 
-  const genAiCode = async () => {
-    const PROMPT =
-      messages[messages.length - 1]?.content + CODE_GEN_PROMPT.prompt;
+  // Load existing workspace data
+  const loadWorkspaceData = async () => {
+    try {
+      setError(null);
+      const response = await axios.get(`${API}/workspace/${workspaceId}`);
+      const workspace = response.data;
+
+      if (workspace.fileData) {
+        // Validate file structure before setting
+        const validatedFiles = validateFiles(workspace.fileData);
+        setFiles(validatedFiles);
+      }
+
+      setIsLoading(false);
+    } catch (error) {
+      console.error("Error loading workspace:", error);
+      setError("Failed to load workspace data");
+      setIsLoading(false);
+    }
+  };
+
+  // Validate file structure for Sandpack
+  const validateFiles = (fileData) => {
+    const validatedFiles = { ...DEFAULT_FILE };
+    
+    Object.keys(fileData).forEach(filePath => {
+      if (fileData[filePath] && typeof fileData[filePath] === 'object') {
+        // Handle both { code: "..." } and direct string formats
+        if (fileData[filePath].code) {
+          validatedFiles[filePath] = { code: fileData[filePath].code };
+        } else if (typeof fileData[filePath] === 'string') {
+          validatedFiles[filePath] = { code: fileData[filePath] };
+        }
+      }
+    });
+
+    return validatedFiles;
+  };
+
+  // Save files to workspace
+  const saveFilesToWorkspace = async (newFiles) => {
+    if (!workspaceId) return;
 
     try {
+      await axios.patch(`${API}/workspace/${workspaceId}/files`, {
+        fileData: newFiles,
+      });
+    } catch (error) {
+      console.error("Error saving files:", error);
+      setError("Failed to save files");
+    }
+  };
+
+  const genAiCode = async () => {
+    const lastMessage = messages[messages.length - 1];
+    if (!lastMessage?.content) return;
+
+    const PROMPT = lastMessage.content + CODE_GEN_PROMPT.prompt;
+
+    try {
+      setError(null);
       const response = await axios.post(`${API}/gemini/generate-code`, {
         prompt: PROMPT,
       });
@@ -43,17 +117,51 @@ const CodeView = () => {
       console.log("genAiCode", response.data.output);
       const aiResponse = response.data.output;
 
+      // Validate AI response structure
+      if (!aiResponse || !aiResponse.files) {
+        throw new Error("Invalid AI response format");
+      }
+
+      // Validate and merge files
+      const validatedAiFiles = validateFiles(aiResponse.files);
       const mergedFiles = {
         ...DEFAULT_FILE,
-        ...aiResponse.files,
+        ...validatedAiFiles,
       };
 
       setFiles(mergedFiles);
+
+      // Save files to workspace
+      await saveFilesToWorkspace(mergedFiles);
+
       console.log("mergedFiles", mergedFiles);
     } catch (error) {
       console.error("Error generating AI code:", error);
+      setError("Failed to generate code");
     }
   };
+
+  // Error boundary for Sandpack
+  const handleSandpackError = (error) => {
+    console.error("Sandpack error:", error);
+    setError("Code execution error");
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-white">Loading workspace...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-red-400">Error: {error}</div>
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -81,7 +189,7 @@ const CodeView = () => {
       </div>
       <div>
         <SandpackProvider
-          template="react"
+          template="react" // Changed from "vite" to "react" for better compatibility
           theme="dark"
           files={files}
           customSetup={{
@@ -90,27 +198,28 @@ const CodeView = () => {
             },
           }}
           options={{
-            externalResources: ["https://cdn.tailwindcss.com"],
+            externalResources: [
+              "https://cdn.tailwindcss.com" // Add Tailwind CSS
+            ],
           }}
-          // //   bundlerURL: "https://sandpack-bundler.codesandbox.io",
-          //   startRoute: "/",
-          //   recompileMode: "delayed",
-          //   recompileDelay: 300,
-          //
         >
           <SandpackLayout>
             {activeTab === "code" ? (
               <>
                 <SandpackFileExplorer style={{ height: "80vh" }} />
-                <SandpackCodeEditor style={{ height: "80vh" }} />
-              </>
-            ) : (
-              <>
-                <SandpackPreview
+                <SandpackCodeEditor 
                   style={{ height: "80vh" }}
-                  showNavigator={true}
+                  showTabs
+                  showLineNumbers
                 />
               </>
+            ) : (
+              <SandpackPreview
+                style={{ height: "80vh" }}
+                showNavigator={true}
+                showOpenInCodeSandbox={false}
+                onError={handleSandpackError}
+              />
             )}
           </SandpackLayout>
         </SandpackProvider>

@@ -1,61 +1,42 @@
 import dedent from "dedent";
 
 // Runtime dependencies only - no build tools
-export const RUNTIME_DEPENDENCIES = {
-  react: "^18.2.0",
-  "react-dom": "^18.2.0",
-  "lucide-react": "latest",
-  firebase: "^11.1.0",
-  "@google/generative-ai": "^0.21.0",
-  "date-fns": "^2.30.0",
-  "react-chartjs-2": "^5.2.0",
-  "chart.js": "^4.4.0",
-  "tailwind-merge": "^2.4.0",
-  uuid4: "^2.0.3",
-};
+// export const RUNTIME_DEPENDENCIES = {
+//   react: "^18.2.0",
+//   "react-dom": "^18.2.0",
+//   "lucide-react": "latest",
+//   firebase: "^11.1.0",
+//   "@google/generative-ai": "^0.21.0",
+//   "date-fns": "^2.30.0",
+//   "react-chartjs-2": "^5.2.0",
+//   "chart.js": "^4.4.0",
+//   "tailwind-merge": "^2.4.0",
+//   uuid4: "^2.0.3",
+// };
 
+// Clean DEFAULT_FILE configuration without duplicates
 export const DEFAULT_FILE = {
+  // HTML entry point
   "/public/index.html": {
     code: `<!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>React App</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-      tailwind.config = {
-        theme: {
-          extend: {
-            animation: {
-              'fade-in': 'fadeIn 0.5s ease-in-out',
-              'slide-up': 'slideUp 0.3s ease-out',
-            },
-            keyframes: {
-              fadeIn: {
-                '0%': { opacity: '0' },
-                '100%': { opacity: '1' },
-              },
-              slideUp: {
-                '0%': { transform: 'translateY(20px)', opacity: '0' },
-                '100%': { transform: 'translateY(0)', opacity: '1' },
-              }
-            }
-          }
-        }
-      }
-    </script>
   </head>
   <body>
     <div id="root"></div>
   </body>
 </html>`,
   },
+
+  // Main React entry point
   "/src/index.js": {
     code: `import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
-import './App.css';
+import './index.css';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
@@ -64,6 +45,8 @@ root.render(
   </React.StrictMode>
 );`,
   },
+
+  // Main App Component
   "/src/App.js": {
     code: `import React from 'react';
 
@@ -76,7 +59,7 @@ export default function App() {
             🚀 Welcome to Your React App
           </h1>
           <p className="text-xl text-gray-600">
-            Ready for AI-generated code!
+            Powered by React & Tailwind CSS!
           </p>
         </div>
         
@@ -85,7 +68,7 @@ export default function App() {
             🎯 Ready to Build
           </h2>
           <p className="text-gray-600">
-            Your Bolt.new clone is set up and ready to generate amazing React applications!
+            Your application is set up and ready to generate amazing React applications.
           </p>
         </div>
       </div>
@@ -93,19 +76,34 @@ export default function App() {
   );
 }`,
   },
-  "/src/App.css": {
-    code: `/* Custom styles - Tailwind loaded via CDN */
-* {
-  box-sizing: border-box;
+
+  // CSS with Tailwind and animations
+  "/src/index.css": {
+    code: `@import url('https://cdn.tailwindcss.com/3.3.0');
+
+/* Custom animations */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+@keyframes slideUp {
+  from { 
+    transform: translateY(20px); 
+    opacity: 0; 
+  }
+  to { 
+    transform: translateY(0); 
+    opacity: 1; 
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+.animate-slide-up {
+  animation: slideUp 0.3s ease-out;
 }
 
 /* Custom scrollbar */
@@ -126,28 +124,42 @@ body {
   background: #a1a1a1;
 }`,
   },
+
+  // Package.json
   "/package.json": {
-    code: `{
-  "name": "react-app",
-  "version": "1.0.0",
-  "main": "src/index.js",
-  "dependencies": {
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "lucide-react": "latest",
-    "react-router-dom": "latest",
-    "firebase": "^11.1.0",
-    "@google/generative-ai": "^0.21.0",
-    "date-fns": "^2.30.0",
-    "react-chartjs-2": "^5.2.0",
-    "chart.js": "^4.4.0",
-    "tailwind-merge": "^2.4.0",
-    "uuid4": "^2.0.3"
-  }
-}`,
+    code: JSON.stringify(
+      {
+        name: "react-app",
+        version: "1.0.0",
+        main: "/src/index.js",
+        dependencies: {
+          react: "^18.2.0",
+          "react-dom": "^18.2.0",
+          "lucide-react": "latest",
+          "react-router-dom": "latest",
+          "date-fns": "^2.30.0",
+          "react-chartjs-2": "^5.2.0",
+          "chart.js": "^4.4.0",
+          uuid4: "^2.0.3",
+        },
+      },
+      null,
+      2
+    ),
   },
 };
 
+// Runtime dependencies for Sandpack
+export const RUNTIME_DEPENDENCIES = {
+  react: "^18.2.0",
+  "react-dom": "^18.2.0",
+  "lucide-react": "latest",
+  "react-router-dom": "latest",
+  "date-fns": "^2.30.0",
+  "react-chartjs-2": "^5.2.0",
+  "chart.js": "^4.4.0",
+  uuid4: "^2.0.3",
+};
 export const CODE_GEN_PROMPT = {
   prompt: `
 Generate a complete React project with modern best practices. Create multiple components organized in logical folders using .js extensions.
