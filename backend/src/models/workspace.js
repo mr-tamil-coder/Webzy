@@ -19,22 +19,9 @@ const workspaceSchema = new mongoose.Schema(
     },
 
     fileData: {
-      type: Object,
+      type: mongoose.Schema.Types.Mixed,
       required: false,
-      validate: {
-        validator: function (value) {
-          // Optional but if exists
-          if (!value) return true;
-          return (
-            typeof value === "object" &&
-            typeof value.name === "string" &&
-            typeof value.size === "number" &&
-            typeof value.type === "string"
-          );
-        },
-        message:
-          "FileData must include name (string), size (number), and type (string).",
-      },
+      default: {},
     },
 
     user: {

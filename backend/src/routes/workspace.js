@@ -19,10 +19,46 @@ router.post("/", async (req, res) => {
     const savedEntry = await workspaceEntry.save();
     res.status(201).json(savedEntry);
   } catch (error) {
-    console.error("Error saving workspace:", error.messages);
+    console.error("Error saving workspace:", error.message);
     res.status(500).json({ error: "Internal Server Error" });
   }
 });
+
+// Update files in workspace
+router.patch("/:id/files", async (req, res) => {
+  try {
+    const { fileData } = req.body;
+
+    if (!fileData) {
+      return res.status(400).json({ error: "Missing fileData" });
+    }
+
+    const workspace = await Workspace.findByIdAndUpdate(
+      req.params.id,
+      { fileData },
+      { new: true }
+    );
+
+    if (!workspace) {
+      return res.status(404).json({ error: "Workspace not found" });
+    }
+
+    res.json({
+      success: true,
+      message: "Files updated successfully",
+      workspace: workspace,
+    });
+  } catch (error) {
+    console.error("Error updating files:", error.message);
+
+    if (error.name === "CastError") {
+      return res.status(400).json({ error: "Invalid workspace ID format" });
+    }
+
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
 //Patch one message
 router.patch("/:id/message", async (req, res) => {
   try {
