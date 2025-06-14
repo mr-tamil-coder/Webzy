@@ -1,16 +1,17 @@
 import dedent from "dedent";
 
-export const DEPENDENCY = {
-  postcss: "^8",
-  tailwindcss: "^3.4.1",
-  autoprefixer: "^10.0.0",
-  uuid4: "^2.0.3",
-  "tailwind-merge": "^2.4.0",
-  "tailwindcss-animate": "^1.0.7",
+// Runtime dependencies only - no build tools
+export const RUNTIME_DEPENDENCIES = {
+  react: "^18.2.0",
+  "react-dom": "^18.2.0",
   "lucide-react": "latest",
-  "react-router-dom": "latest",
   firebase: "^11.1.0",
   "@google/generative-ai": "^0.21.0",
+  "date-fns": "^2.30.0",
+  "react-chartjs-2": "^5.2.0",
+  "chart.js": "^4.4.0",
+  "tailwind-merge": "^2.4.0",
+  uuid4: "^2.0.3",
 };
 
 export const DEFAULT_FILE = {
@@ -20,46 +21,188 @@ export const DEFAULT_FILE = {
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>React App</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            animation: {
+              'fade-in': 'fadeIn 0.5s ease-in-out',
+              'slide-up': 'slideUp 0.3s ease-out',
+            },
+            keyframes: {
+              fadeIn: {
+                '0%': { opacity: '0' },
+                '100%': { opacity: '1' },
+              },
+              slideUp: {
+                '0%': { transform: 'translateY(20px)', opacity: '0' },
+                '100%': { transform: 'translateY(0)', opacity: '1' },
+              }
+            }
+          }
+        }
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>
   </body>
 </html>`,
   },
-  "/App.css": {
-    code: `
-            @tailwind base;
-@tailwind components;
-@tailwind utilities;`,
+  "/src/index.js": {
+    code: `import React from 'react';
+import ReactDOM from 'react-dom/client';
+import App from './App';
+import './App.css';
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
+);`,
   },
-  "/tailwind.config.js": {
-    code: `
-            /** @type {import('tailwindcss').Config} */
-module.exports = {
-  content: [
-    "./src/**/*.{js,jsx,ts,tsx}",
-  ],
-  theme: {
-    extend: {},
-  },
-  plugins: [],
+  "/src/App.js": {
+    code: `import React from 'react';
+
+export default function App() {
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-8">
+      <div className="max-w-4xl mx-auto">
+        <div className="text-center mb-8 animate-fade-in">
+          <h1 className="text-4xl font-bold text-gray-800 mb-4">
+            🚀 Welcome to Your React App
+          </h1>
+          <p className="text-xl text-gray-600">
+            Ready for AI-generated code!
+          </p>
+        </div>
+        
+        <div className="bg-white rounded-lg shadow-lg p-6 animate-slide-up">
+          <h2 className="text-2xl font-semibold mb-4 text-gray-700">
+            🎯 Ready to Build
+          </h2>
+          <p className="text-gray-600">
+            Your Bolt.new clone is set up and ready to generate amazing React applications!
+          </p>
+        </div>
+      </div>
+    </div>
+  );
 }`,
   },
-  "/postcss.config.js": {
-    code: `/** @type {import('postcss-load-config').Config} */
-const config = {
-  plugins: {
-    tailwindcss: {},
+  "/src/App.css": {
+    code: `/* Custom styles - Tailwind loaded via CDN */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a1a1a1;
+}`,
+  },
+  "/package.json": {
+    code: `{
+  "name": "react-app",
+  "version": "1.0.0",
+  "main": "src/index.js",
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "lucide-react": "latest",
+    "react-router-dom": "latest",
+    "firebase": "^11.1.0",
+    "@google/generative-ai": "^0.21.0",
+    "date-fns": "^2.30.0",
+    "react-chartjs-2": "^5.2.0",
+    "chart.js": "^4.4.0",
+    "tailwind-merge": "^2.4.0",
+    "uuid4": "^2.0.3"
+  }
+}`,
   },
 };
 
-export default config;
-`,
+export const CODE_GEN_PROMPT = {
+  prompt: `
+Generate a complete React project with modern best practices. Create multiple components organized in logical folders using .js extensions.
+
+STYLING & DESIGN:
+- Use Tailwind CSS exclusively for styling (loaded via CDN)
+- Create beautiful, modern, production-ready designs with proper spacing and typography
+- Use gradients, shadows, and animations for visual appeal
+- Implement responsive design for mobile and desktop
+- Add hover effects and smooth transitions
+
+COMPONENTS & STRUCTURE:
+- Create reusable components in separate files
+- Use React hooks (useState, useEffect, useContext, etc.) appropriately
+- Implement proper component composition and props passing
+- Add error boundaries where needed
+
+ICONS & IMAGES:
+- Use lucide-react icons when needed: Heart, Shield, Clock, Users, Play, Home, Search, Menu, User, Settings, Mail, Bell, Calendar, Star, Upload, Download, Trash, Edit, Plus, Minus, Check, X, ArrowRight
+- Import icons like: import { Heart } from "lucide-react"
+- Use emojis for additional visual elements
+- For images, use Unsplash URLs or placeholder: https://archive.org/download/placeholder-image/placeholder-image.jpg
+
+AVAILABLE PACKAGES (use only when needed):
+- lucide-react (icons)
+- react-router-dom (routing)
+- date-fns (date manipulation)
+- react-chartjs-2 & chart.js (charts)
+- firebase (backend)
+- @google/generative-ai (AI integration)
+- tailwind-merge (class merging)
+- uuid4 (unique IDs)
+
+REQUIRED FILES:
+- /src/index.js (React entry point)
+- /src/App.js (Main app component)  
+- /src/App.css (Custom styles)
+
+RESPONSE FORMAT:
+{
+  "projectTitle": "Descriptive project name",
+  "explanation": "One paragraph explaining the project structure, purpose, and key features",
+  "files": {
+    "/src/App.js": { "code": "..." },
+    "/src/index.js": { "code": "..." },
+    "/src/App.css": { "code": "..." },
+    "/src/components/ComponentName.js": { "code": "..." }
   },
+  "generatedFiles": ["/src/App.js", "/src/index.js", ...]
+}
+
+Make the application fully functional with proper state management, event handling, and user interactions. Focus on creating something that feels polished and production-ready.
+`,
 };
-export default {
+const vinothTemp = {
   SUGGSTIONS: [
     "Create ToDo App in React",
     "Create Budget Track App",
@@ -124,3 +267,15 @@ export default {
     },
   ],
 };
+
+export default {
+  CHAT_PROMPT: dedent`
+  'You are a AI Assistant and experience in React Development.
+  GUIDELINES:
+  - Tell user what your are building
+  - response less than 15 lines. 
+  - Skip code examples and commentary'
+`,
+};
+
+// - The lucide-react library is also available to be imported IF NECCESARY ONLY FOR THE FOLLOWING ICONS: Heart, Shield, Clock, Users, Play, Home, Search, Menu, User, Settings, Mail, Bell, Calendar, Clock, Heart, Star, Upload, Download, Trash, Edit, Plus, Minus, Check, X, ArrowRight. Here's an example of importing and using one: import { Heart } from "lucide-react"\` & \<Heart className=""  />\. PLEASE ONLY USE THE ICONS IF AN ICON IS NEEDED IN THE USER'S REQUEST.
