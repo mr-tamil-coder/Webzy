@@ -1,12 +1,14 @@
 const express = require("express");
 const dotenv = require("dotenv");
+dotenv.config();
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
 const authRoutes = require("./src/routes/auth");
 const workSpaceRoutes = require("./src/routes/workspace");
+const geminiRoutes = require("./src/routes/gemini");
 const connectDB = require("./src/config/db");
 
-dotenv.config();
+console.log("Home", process.env.GEMINI_API_KEY);
 
 const app = express();
 //Auth Middleware
@@ -25,7 +27,7 @@ app.get("/", (req, res) => {
 });
 app.use("/api/auth", authRoutes);
 app.use("/api/workspace", workSpaceRoutes);
-
+app.use("/api/gemini", geminiRoutes);
 const PORT = process.env.PORT || 5000;
 connectDB()
   .then(() => {

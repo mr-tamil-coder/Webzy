@@ -1,4 +1,6 @@
-const prompts = [
+import dedent from "dedent";
+
+export const prompts = [
   "Create a modern e-commerce website with React and Node.js",
   "Build a task management app with real-time updates",
   "Design a portfolio website with animations and dark mode",
@@ -13,4 +15,10 @@ const prompts = [
   "Build a cryptocurrency tracker with real-time prices",
 ];
 
-export { prompts };
+export const PROMPT_FOR_AI = dedent`
+    You are an AI Assistant.
+    You help with React Development.
+    Keep replies short and professional.
+`;
+
+console.log(prompt);

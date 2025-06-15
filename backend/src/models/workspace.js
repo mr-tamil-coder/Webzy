@@ -1,40 +1,27 @@
 const mongoose = require("mongoose");
 const workspaceSchema = new mongoose.Schema(
   {
-    message: {
-      type: Object,
-      required: true,
-      validate: {
-        validator: function (value) {
-          // Validate it must have a "prompt" and "type"
-          return (
-            typeof value === "object" &&
-            value !== null &&
-            typeof value.prompt === "string" &&
-            typeof value.type === "string"
-          );
+    messages: {
+      type: [
+        {
+          role: {
+            type: String,
+            enum: ["user", "ai"],
+            required: true,
+          },
+          content: {
+            type: String,
+            required: true,
+          },
         },
-        message: "Message must be an object with valid prompt and type fields.",
-      },
+      ],
+      required: true,
     },
 
     fileData: {
-      type: Object,
+      type: mongoose.Schema.Types.Mixed,
       required: false,
-      validate: {
-        validator: function (value) {
-          // Optional but if exists
-          if (!value) return true;
-          return (
-            typeof value === "object" &&
-            typeof value.name === "string" &&
-            typeof value.size === "number" &&
-            typeof value.type === "string"
-          );
-        },
-        message:
-          "FileData must include name (string), size (number), and type (string).",
-      },
+      default: {},
     },
 
     user: {

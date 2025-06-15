@@ -3,9 +3,9 @@ import { createContext, useState } from "react";
 export const MessageContext = createContext();
 
 export function MessageProvider({ children }) {
-  const [message, setMessage] = useState("");
+  const [messages, setMessages] = useState("");
   return (
-    <MessageContext.Provider value={{ message, setMessage }}>
+    <MessageContext.Provider value={{ messages, setMessages }}>
       {children}
     </MessageContext.Provider>
   );

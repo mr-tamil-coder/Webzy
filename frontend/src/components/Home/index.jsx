@@ -15,13 +15,18 @@ import NavBar from "./NavBar";
 import appData from "../../data/appData";
 import PromptSuggestions from "./PromptSuggestions";
 import { BgAnimation, FloatingParticles } from "./Animation";
+import AuthDialog from "../Auth/AuthDialog";
+import axios from "axios";
+import { useNavigate } from "react-router";
+import { API } from "../../utils/Api";
+import Sidebar from "../SideBar/SideBar";
 const Index = () => {
   const [inputValue, setInputValue] = useState("");
-  const [isTyping, setIsTyping] = useState(false);
   const [currentFeature, setCurrentFeature] = useState(0);
   const { messages, setMessages } = useContext(MessageContext);
-  const { user, setUser } = useContext(userContext);
-  const [dialog, setDialog] = useState(false);
+  const { userInfo, setUserInfo } = useContext(userContext);
+  const [showAuthDialog, setShowAuthDialog] = useState(false);
+  const navigate = useNavigate();
 
   const features = [
     {
@@ -46,41 +51,57 @@ const Index = () => {
     },
   ];
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentFeature((prev) => (prev + 1) % features.length);
-    }, 33000);
-    return () => clearInterval(interval);
-  }, []);
-
   const handleInputChange = (e) => {
     // console.log(e.target.value);
     setInputValue(e.target.value);
-    setIsTyping(true);
-    setTimeout(() => setIsTyping(false), 1000);
   };
 
   const handleSubmit = () => {
     if (inputValue.trim()) {
-      alert(`Building: ${inputValue}`);
+      // alert(`Building: ${inputValue}`);
     }
   };
 
-  const generateOutput = (userText) => {
-    if (userInfo?.name) {
-      setDialog(true);
-      //TODO: CREATE  A DIALOG POPUP WHEN THE USER TRY TO CLICK ARROW WITHOUT AUTHENTICATION
-
-      //1. SEPARATE COMPONENT
-      return;
+  const generateOutput = async (userText) => {
+    if (userInfo && userInfo._id && userInfo.emailVerified) {
+      console.log("UserInfooooooo ", userInfo);
+      const userPrompt = {
+        role: "user",
+        content: userText,
+      };
+      setMessages(userPrompt);
+      try {
+        const res = await axios.post(
+          `${API}/workspace`,
+          {
+            messages: [userPrompt],
+            user: userInfo._id,
+          },
+          {
+            withCredentials: true,
+          }
+        );
+        const newWorkspace = res.data;
+        navigate(`/workspace/${newWorkspace._id}`);
+        return;
+      } catch (err) {
+        console.log(err);
+      }
     }
+    setShowAuthDialog(true);
+    console.log("UserInfo", userInfo);
     console.log(userText);
+    // TODO :
   };
+  const handleCloseAuthDialog = () => {
+    setShowAuthDialog(false);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white overflow-hidden relative">
       {/* Animated Background Elements */}
       <BgAnimation />
-
+      <Sidebar />
       {/* Floating Particles */}
       <FloatingParticles />
 
@@ -170,6 +191,11 @@ const Index = () => {
           prompts={appData.prompts}
         />
       </main>
+      <AuthDialog
+        isOpen={showAuthDialog}
+        onClose={handleCloseAuthDialog}
+        // onAuthenticate={handleAuthentication}
+      />
     </div>
   );
 };
