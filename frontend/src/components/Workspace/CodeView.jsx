@@ -40,8 +40,8 @@ const CodeView = ({ workspaceId }) => {
       if (lastMessage?.role === "user" && !lastMessage.processed) {
         genAiCode();
         // Mark message as processed to prevent re-triggering
-        setMessages(prev => 
-          prev.map((msg, index) => 
+        setMessages((prev) =>
+          prev.map((msg, index) =>
             index === prev.length - 1 ? { ...msg, processed: true } : msg
           )
         );
@@ -73,13 +73,13 @@ const CodeView = ({ workspaceId }) => {
   // Validate file structure for Sandpack
   const validateFiles = (fileData) => {
     const validatedFiles = { ...DEFAULT_FILE };
-    
-    Object.keys(fileData).forEach(filePath => {
-      if (fileData[filePath] && typeof fileData[filePath] === 'object') {
+
+    Object.keys(fileData).forEach((filePath) => {
+      if (fileData[filePath] && typeof fileData[filePath] === "object") {
         // Handle both { code: "..." } and direct string formats
         if (fileData[filePath].code) {
           validatedFiles[filePath] = { code: fileData[filePath].code };
-        } else if (typeof fileData[filePath] === 'string') {
+        } else if (typeof fileData[filePath] === "string") {
           validatedFiles[filePath] = { code: fileData[filePath] };
         }
       }
@@ -103,10 +103,9 @@ const CodeView = ({ workspaceId }) => {
   };
 
   const genAiCode = async () => {
-    const lastMessage = messages[messages.length - 1];
-    if (!lastMessage?.content) return;
+    const PROMPT = JSON.stringify(messages) + CODE_GEN_PROMPT.prompt;
 
-    const PROMPT = lastMessage.content + CODE_GEN_PROMPT.prompt;
+    console.log("PROMPT", PROMPT);
 
     try {
       setError(null);
@@ -199,7 +198,7 @@ const CodeView = ({ workspaceId }) => {
           }}
           options={{
             externalResources: [
-              "https://cdn.tailwindcss.com" // Add Tailwind CSS
+              "https://cdn.tailwindcss.com", // Add Tailwind CSS
             ],
           }}
         >
@@ -207,7 +206,7 @@ const CodeView = ({ workspaceId }) => {
             {activeTab === "code" ? (
               <>
                 <SandpackFileExplorer style={{ height: "80vh" }} />
-                <SandpackCodeEditor 
+                <SandpackCodeEditor
                   style={{ height: "80vh" }}
                   showTabs
                   showLineNumbers

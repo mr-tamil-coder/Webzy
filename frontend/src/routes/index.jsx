@@ -1,7 +1,7 @@
 import { lazy, Suspense } from "react";
-import App from "../App";
 import Loading from "../components/Loading";
 import WorkSpace from "../components/Workspace";
+import App from "../App";
 const Home = lazy(() => import("../pages/Home"));
 
 const routes = [

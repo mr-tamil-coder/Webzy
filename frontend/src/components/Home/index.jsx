@@ -19,6 +19,7 @@ import AuthDialog from "../Auth/AuthDialog";
 import axios from "axios";
 import { useNavigate } from "react-router";
 import { API } from "../../utils/Api";
+import Sidebar from "../SideBar/SideBar";
 const Index = () => {
   const [inputValue, setInputValue] = useState("");
   const [currentFeature, setCurrentFeature] = useState(0);
@@ -100,7 +101,7 @@ const Index = () => {
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white overflow-hidden relative">
       {/* Animated Background Elements */}
       <BgAnimation />
-
+      <Sidebar />
       {/* Floating Particles */}
       <FloatingParticles />
 
