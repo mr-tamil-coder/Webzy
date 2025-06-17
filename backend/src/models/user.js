@@ -9,6 +9,7 @@ const userSchema = new mongoose.Schema({
   lastName: String,
   fullName: String,
   profilePicture: String,
+  // token: number,
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
 });
