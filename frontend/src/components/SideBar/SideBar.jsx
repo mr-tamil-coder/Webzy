@@ -24,10 +24,10 @@ const Sidebar = () => {
   const [history, setHistory] = useState([]);
 
   useEffect(() => {
-    if (userInfo._id) {
+    if (userInfo?._id) {
       fetchUserHistory();
     }
-  }, [userInfo._id]);
+  }, [userInfo?._id]);
 
   async function fetchUserHistory() {
     try {

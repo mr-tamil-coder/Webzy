@@ -4,7 +4,7 @@ import { API } from "../utils/Api";
 
 export const userContext = createContext();
 export function UserProvider({ children }) {
-  const [userInfo, setUserInfo] = useState({});
+  const [userInfo, setUserInfo] = useState(null);
 
   const fetchUser = async () => {
     try {

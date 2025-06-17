@@ -4,7 +4,7 @@ import routes from "./routes";
 import { MessageProvider } from "./context/MsgContext";
 import { UserProvider } from "./context/UserContext";
 import { GoogleOAuthProvider } from "@react-oauth/google";
-import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
+// import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
 
 function App() {
   const googleClientId = import.meta.env.VITE_CLIENT_ID;
@@ -13,14 +13,14 @@ function App() {
   return (
     <>
       <GoogleOAuthProvider clientId={googleClientId}>
-        <PayPalScriptProvider options={{ clientId: payPalClientId }}>
+        {/* <PayPalScriptProvider options={{ clientId: payPalClientId }}> */}
           <UserProvider>
             <MessageProvider>
               <RouterProvider router={router} />
               <ToastContainer />
             </MessageProvider>
           </UserProvider>
-        </PayPalScriptProvider>
+        {/* </PayPalScriptProvider> */}
       </GoogleOAuthProvider>
     </>
   );
