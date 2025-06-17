@@ -3,6 +3,7 @@ import { X, User, Sparkles } from "lucide-react";
 import { useGoogleLogin } from "@react-oauth/google";
 import axios from "axios";
 import { userContext } from "../../context/UserContext";
+import { API } from "../../utils/Api";
 
 const AuthDialog = ({ isOpen, onClose }) => {
   const { userInfo, setUserInfo } = useContext(userContext);
@@ -28,7 +29,7 @@ const AuthDialog = ({ isOpen, onClose }) => {
           sub,
         } = googleUserInfo?.data;
         const response = await axios.post(
-          "http://localhost:5000/api/auth/google",
+          `${API}/auth/google`,
           {
             email,
             email_verified,
