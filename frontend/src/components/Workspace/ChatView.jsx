@@ -7,6 +7,7 @@ import { userContext } from "../../context/UserContext";
 import { PROMPT_FOR_AI } from "../../data/prompt";
 import { Loader2Icon } from "lucide-react";
 import ReactMarkdown from "react-markdown";
+import { countTokens } from "../../utils/helper";
 const ChatView = () => {
   const { id } = useParams();
   const { messages, setMessages } = useContext(MessageContext);
@@ -106,6 +107,7 @@ const ChatView = () => {
       // Add AI message to local state
       setMessages((prev) => [...prev, aiMessage]);
 
+      countTokens(JSON.stringify(aiMessage));
       // Save AI message to workspace
       await saveMessageToWorkspace(aiMessage);
     } catch (error) {
